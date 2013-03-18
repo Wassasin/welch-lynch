@@ -10,18 +10,16 @@ const time_t INF = 32767;
 
 const int n = process_count;
 
-const time_t xi = 10; // rho is the max drift of the physical clock; xi is 1/rho
+const time_t xi = 20; // rho is the max drift of the physical clock; xi is 1/rho
 const time_t delta = 5; // mean transfer delay of messages
 const time_t epsilon = 1; // max deviation of transfer delay of messages
-const time_t P = 100; // time after which the clock must be resynchronized
-const time_t beta = 5; // maximal allowed difference between the synchronized clocks
+const time_t P = 50; // time after which the clock must be resynchronized
+const time_t beta = 50; // maximal allowed difference between the synchronized clocks
 const time_t gamma = beta + epsilon + (7 * beta + 3 * delta + 7 * epsilon) / xi + 8 * (beta + delta + epsilon) / (xi * xi) + 4 * (beta + delta + epsilon) / (xi * xi * xi);
 
 chan send[n];
 chan receive[n][n];
 time_t phys_clock[n], CORR[n];
-
-clock c;
 
 time_t min(time_t x, time_t y)
 {
@@ -61,21 +59,13 @@ time_t calculate_corr()
                 }
         return CORR[id] + T + delta - (minval + maxval) / 2;
 }</declaration>
-		<location id="id0" x="432" y="216">
-			<name x="422" y="186">finished</name>
-		</location>
-		<location id="id1" x="240" y="64">
+		<location id="id0" x="240" y="64">
 			<label kind="invariant" x="-96" y="64">t&lt;xi+1 &amp;&amp; phys_clock[id]+CORR[id]&lt;=timer</label>
 		</location>
-		<init ref="id1"/>
+		<init ref="id0"/>
 		<transition>
-			<source ref="id1"/>
+			<source ref="id0"/>
 			<target ref="id0"/>
-			<label kind="guard" x="280" y="152">c &gt; 100</label>
-		</transition>
-		<transition>
-			<source ref="id1"/>
-			<target ref="id1"/>
 			<label kind="guard" x="368" y="24">timer == phys_clock[id]+CORR[id] &amp;&amp; FLAG</label>
 			<label kind="assignment" x="368" y="48">CORR[id] = calculate_corr(),
 timer = T+P,
@@ -85,8 +75,8 @@ FLAG = false</label>
 			<nail x="360" y="128"/>
 		</transition>
 		<transition>
-			<source ref="id1"/>
-			<target ref="id1"/>
+			<source ref="id0"/>
+			<target ref="id0"/>
 			<label kind="guard" x="-112" y="-16">phys_clock[id]+CORR[id]==timer &amp;&amp; !FLAG</label>
 			<label kind="synchronisation" x="-184" y="40">send[id]!</label>
 			<label kind="assignment" x="-144" y="96">FLAG = true,
@@ -96,8 +86,8 @@ timer = T+(1+xi)*(beta+delta+epsilon)/xi</label>
 			<nail x="176" y="88"/>
 		</transition>
 		<transition>
-			<source ref="id1"/>
-			<target ref="id1"/>
+			<source ref="id0"/>
+			<target ref="id0"/>
 			<label kind="guard" x="80" y="248">t&gt;xi-1 &amp;&amp; phys_clock[id]+CORR[id]&lt;timer</label>
 			<label kind="assignment" x="80" y="264">phys_clock[id] = phys_clock[id]+1,
 t = 0</label>
@@ -105,13 +95,31 @@ t = 0</label>
 			<nail x="128" y="240"/>
 		</transition>
 		<transition>
-			<source ref="id1"/>
-			<target ref="id1"/>
+			<source ref="id0"/>
+			<target ref="id0"/>
 			<label kind="select" x="224" y="-128">k : id_t</label>
 			<label kind="synchronisation" x="80" y="-96">receive[id][k]?</label>
 			<label kind="assignment" x="192" y="-96">ARR[k] = phys_clock[id]+CORR[id]</label>
 			<nail x="120" y="-72"/>
 			<nail x="352" y="-72"/>
+		</transition>
+	</template>
+	<template>
+		<name>Observer</name>
+		<parameter>const time_t t</parameter>
+		<declaration>clock c;</declaration>
+		<location id="id1" x="0" y="-96">
+			<name x="16" y="-120">finished</name>
+		</location>
+		<location id="id2" x="0" y="0">
+			<name x="24" y="-16">processing</name>
+			<label kind="invariant" x="24" y="0">c &lt; t</label>
+		</location>
+		<init ref="id2"/>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="guard" x="16" y="-56">c == t</label>
 		</transition>
 	</template>
 	<template>
@@ -125,15 +133,17 @@ void reset_b()
     for(i : id_t)
         b[i] = true;
 }</declaration>
-		<location id="id2" x="264" y="-16">
-			<label kind="invariant" x="288" y="-24">t &lt;= xi * (delta+epsilon)</label>
+		<location id="id3" x="264" y="-16">
+			<name x="288" y="-32">sending</name>
+			<label kind="invariant" x="288" y="-16">t &lt;= xi * (delta+epsilon)</label>
 		</location>
-		<location id="id3" x="-72" y="-16">
+		<location id="id4" x="-72" y="-16">
+			<name x="-56" y="-32">idle</name>
 		</location>
-		<init ref="id3"/>
+		<init ref="id4"/>
 		<transition>
-			<source ref="id3"/>
-			<target ref="id2"/>
+			<source ref="id4"/>
+			<target ref="id3"/>
 			<label kind="synchronisation" x="72" y="96">send[id]?</label>
 			<label kind="assignment" x="72" y="111">t = 0,
 reset_b()</label>
@@ -141,14 +151,14 @@ reset_b()</label>
 			<nail x="192" y="80"/>
 		</transition>
 		<transition>
-			<source ref="id2"/>
-			<target ref="id3"/>
-			<label kind="guard" x="-80" y="32">(t &lt;= xi * (delta+epsilon)) &amp;&amp; forall(l : id_t) !b[l]</label>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-80" y="32">(t &lt;= xi * (delta+epsilon)) &amp;&amp; forall(l : id_t) l != id imply !b[l]</label>
 			<nail x="104" y="24"/>
 		</transition>
 		<transition>
-			<source ref="id2"/>
-			<target ref="id2"/>
+			<source ref="id3"/>
+			<target ref="id3"/>
 			<label kind="select" x="112" y="-272">l : id_t</label>
 			<label kind="guard" x="112" y="-256">l != id &amp;&amp; b[l] &amp;&amp; t &gt;= xi * (delta-epsilon)</label>
 			<label kind="synchronisation" x="112" y="-241">receive[l][id]!</label>
@@ -167,5 +177,7 @@ C0 = Channel(0);
 C1 = Channel(1);
 C2 = Channel(2);
 
-system P0, P1, P2, C0, C1, C2;</system>
+O = Observer(10);
+
+system P0, P1, P2, C0, C1, C2, O;</system>
 </nta>
