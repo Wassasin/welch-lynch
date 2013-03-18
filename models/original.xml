@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_1.dtd'>
+<nta>
+	<declaration>const int process_count = 3;
+
+typedef int[0,process_count-1] id_t;
+typedef int time_t;
+
+const int n = process_count;
+
+const time_t xi = 1;
+const time_t delta = 1;
+const time_t epsilon = 1;
+const time_t P = 10;
+const time_t beta = 1;
+
+int[0,n-1] k, l;
+chan send[n];
+chan receive[n][n];</declaration>
+	<template>
+		<name x="5" y="5">Process</name>
+		<parameter>const id_t id</parameter>
+		<declaration>time_t phys_clock, CORR, min, max, timer, T;
+time_t ARR[n];
+bool FLAG;
+int[0, n] i;
+
+clock t;</declaration>
+		<location id="id0" x="632" y="56">
+			<committed/>
+		</location>
+		<location id="id1" x="240" y="64">
+			<label kind="invariant" x="-96" y="64">t&lt;xi+1 &amp;&amp; phys_clock+CORR&lt;=timer</label>
+		</location>
+		<init ref="id1"/>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-112" y="-16">phys_clock+CORR==timer &amp;&amp; !FLAG</label>
+			<label kind="synchronisation" x="-184" y="40">send[id]!</label>
+			<label kind="assignment" x="-144" y="96">FLAG = true,
+timer = T+(1+xi)*(beta+delta+epsilon)/xi</label>
+			<nail x="-112" y="8"/>
+			<nail x="-112" y="88"/>
+			<nail x="176" y="88"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="80" y="248">t&gt;xi-1 &amp;&amp; phys_clock+CORR&lt;timer</label>
+			<label kind="assignment" x="80" y="264">phys_clock = phys_clock+1,
+t = 0</label>
+			<nail x="240" y="240"/>
+			<nail x="128" y="240"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="624" y="208">i &lt; n</label>
+			<label kind="assignment" x="440" y="248">min = min*(id==i)+(min*(min&lt;ARR[i])+ARR[i]*(ARR[i]&lt;=min))*(id!=i),
+max = max*(id==i)+(max*(max&gt;ARR[i])+ARR[i]*(ARR[i]&gt;=max))*(id!=i),
+i = i+1</label>
+			<nail x="592" y="240"/>
+			<nail x="688" y="240"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="432" y="64">i == n</label>
+			<label kind="assignment" x="304" y="104">CORR = CORR+T+delta-(min+max)/2,
+timer = T+P,
+T = T+P,
+FLAG = false</label>
+			<nail x="456" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="guard" x="376" y="-24">timer == phys_clock+CORR &amp;&amp; FLAG</label>
+			<label kind="assignment" x="376" y="-8">i = 0, min = ARR[(id+1)%n], max = ARR[(id+1)%n]</label>
+			<nail x="456" y="16"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="80" y="-96">receive[id][k]?</label>
+			<label kind="assignment" x="192" y="-96">ARR[k] = phys_clock+CORR</label>
+			<nail x="120" y="-72"/>
+			<nail x="352" y="-72"/>
+		</transition>
+	</template>
+	<template>
+		<name>Choice</name>
+		<parameter>int[0, n-1] &amp;x</parameter>
+		<location id="id2" x="0" y="0">
+		</location>
+		<init ref="id2"/>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="assignment" x="80" y="-8">x = (x+1)%n</label>
+			<nail x="72" y="-40"/>
+			<nail x="72" y="40"/>
+		</transition>
+	</template>
+	<template>
+		<name>Channel</name>
+		<parameter>const id_t id</parameter>
+		<declaration>clock t;
+int[0, n] C; //Include n, because of iteration
+bool b[n];</declaration>
+		<location id="id3" x="264" y="-16">
+			<label kind="invariant" x="288" y="-24">t &lt;= xi * (delta+epsilon)</label>
+		</location>
+		<location id="id4" x="96" y="184">
+			<committed/>
+		</location>
+		<location id="id5" x="-72" y="-16">
+		</location>
+		<init ref="id5"/>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-40" y="32">(t &lt;= xi * (delta+epsilon)) &amp;&amp; (C==0)</label>
+			<nail x="104" y="24"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="guard" x="112" y="-256">l != id &amp;&amp; b[l] &amp;&amp; t &gt;= xi * (delta-epsilon)</label>
+			<label kind="synchronisation" x="112" y="-241">receive[l][id]!</label>
+			<label kind="assignment" x="112" y="-226">C = C-1, b[l] = 0</label>
+			<nail x="72" y="-136"/>
+			<nail x="64" y="-200"/>
+			<nail x="440" y="-200"/>
+			<nail x="416" y="-120"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="guard" x="240" y="72">C == n</label>
+			<label kind="assignment" x="240" y="88">C = n-1</label>
+			<nail x="208" y="104"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id4"/>
+			<label kind="guard" x="80" y="264">C &lt; n</label>
+			<label kind="assignment" x="72" y="280">b[C] = 1,
+C=C+1</label>
+			<nail x="144" y="256"/>
+			<nail x="48" y="256"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-128" y="80">send[id]?</label>
+			<label kind="assignment" x="-128" y="96">t = 0</label>
+			<nail x="-48" y="96"/>
+		</transition>
+	</template>
+	<system>P0 = Process(0);
+P1 = Process(1);
+P2 = Process(2);
+
+C0 = Channel(0);
+C1 = Channel(1);
+C2 = Channel(2);
+
+CHk = Choice(k);
+CHl = Choice(l);
+
+system P0, P1, P2, C0, C1, C2, CHk, CHl;</system>
+</nta>
