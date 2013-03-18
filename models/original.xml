@@ -13,14 +13,25 @@ const time_t delta = 1;
 const time_t epsilon = 1;
 const time_t P = 10;
 const time_t beta = 1;
+const time_t gamma = beta + epsilon + (7 * beta + 3 * delta + 7 * epsilon) / xi + 8 * (beta + delta + epsilon) / (xi * xi) + 4 * (beta + delta + epsilon) / (xi * xi * xi);
 
 int[0,n-1] k, l;
 chan send[n];
-chan receive[n][n];</declaration>
+chan receive[n][n];
+
+time_t phys_clock[n], CORR[n];
+
+time_t abs(time_t x)
+{
+    if(x &lt; 0)
+       return -x;
+    else
+       return x;
+}</declaration>
 	<template>
 		<name x="5" y="5">Process</name>
 		<parameter>const id_t id</parameter>
-		<declaration>time_t phys_clock, CORR, min, max, timer, T;
+		<declaration>time_t min, max, timer, T;
 time_t ARR[n];
 bool FLAG;
 int[0, n] i;
@@ -30,13 +41,13 @@ clock t;</declaration>
 			<committed/>
 		</location>
 		<location id="id1" x="240" y="64">
-			<label kind="invariant" x="-96" y="64">t&lt;xi+1 &amp;&amp; phys_clock+CORR&lt;=timer</label>
+			<label kind="invariant" x="-96" y="64">t&lt;xi+1 &amp;&amp; phys_clock[id]+CORR[id]&lt;=timer</label>
 		</location>
 		<init ref="id1"/>
 		<transition>
 			<source ref="id1"/>
 			<target ref="id1"/>
-			<label kind="guard" x="-112" y="-16">phys_clock+CORR==timer &amp;&amp; !FLAG</label>
+			<label kind="guard" x="-112" y="-16">phys_clock[id]+CORR[id]==timer &amp;&amp; !FLAG</label>
 			<label kind="synchronisation" x="-184" y="40">send[id]!</label>
 			<label kind="assignment" x="-144" y="96">FLAG = true,
 timer = T+(1+xi)*(beta+delta+epsilon)/xi</label>
@@ -47,8 +58,8 @@ timer = T+(1+xi)*(beta+delta+epsilon)/xi</label>
 		<transition>
 			<source ref="id1"/>
 			<target ref="id1"/>
-			<label kind="guard" x="80" y="248">t&gt;xi-1 &amp;&amp; phys_clock+CORR&lt;timer</label>
-			<label kind="assignment" x="80" y="264">phys_clock = phys_clock+1,
+			<label kind="guard" x="80" y="248">t&gt;xi-1 &amp;&amp; phys_clock[id]+CORR[id]&lt;timer</label>
+			<label kind="assignment" x="80" y="264">phys_clock[id] = phys_clock[id]+1,
 t = 0</label>
 			<nail x="240" y="240"/>
 			<nail x="128" y="240"/>
@@ -67,7 +78,7 @@ i = i+1</label>
 			<source ref="id0"/>
 			<target ref="id1"/>
 			<label kind="guard" x="432" y="64">i == n</label>
-			<label kind="assignment" x="304" y="104">CORR = CORR+T+delta-(min+max)/2,
+			<label kind="assignment" x="304" y="104">CORR[id] = CORR[id]+T+delta-(min+max)/2,
 timer = T+P,
 T = T+P,
 FLAG = false</label>
@@ -76,7 +87,7 @@ FLAG = false</label>
 		<transition>
 			<source ref="id1"/>
 			<target ref="id0"/>
-			<label kind="guard" x="376" y="-24">timer == phys_clock+CORR &amp;&amp; FLAG</label>
+			<label kind="guard" x="376" y="-24">timer == phys_clock[id]+CORR[id] &amp;&amp; FLAG</label>
 			<label kind="assignment" x="376" y="-8">i = 0, min = ARR[(id+1)%n], max = ARR[(id+1)%n]</label>
 			<nail x="456" y="16"/>
 		</transition>
@@ -84,7 +95,7 @@ FLAG = false</label>
 			<source ref="id1"/>
 			<target ref="id1"/>
 			<label kind="synchronisation" x="80" y="-96">receive[id][k]?</label>
-			<label kind="assignment" x="192" y="-96">ARR[k] = phys_clock+CORR</label>
+			<label kind="assignment" x="192" y="-96">ARR[k] = phys_clock[id]+CORR[id]</label>
 			<nail x="120" y="-72"/>
 			<nail x="352" y="-72"/>
 		</transition>
