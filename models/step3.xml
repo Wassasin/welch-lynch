@@ -15,12 +15,16 @@ const time_t delta = 4; // mean transfer delay of messages
 const time_t epsilon = 2; // max deviation of transfer delay of messages
 const time_t P = 42; // time after which the clock must be resynchronized
 const time_t beta = 10; // maximal allowed difference between the synchronized clocks
-const time_t gamma = 12;//beta + epsilon + (7 * beta + 3 * delta + 7 * epsilon) / xi + 8 * (beta + delta + epsilon) / (xi * xi) + 4 * (beta + delta + epsilon) / (xi * xi * xi);
+
+const time_t gamma = beta + epsilon + (7 * beta + 3 * delta + 7 * epsilon) / xi + 8 * (beta + delta + epsilon) / (xi * xi) + 4 * (beta + delta + epsilon) / (xi * xi * xi);
+const time_t cycle = (1+xi)*(beta+delta+epsilon)/xi;
+
+typedef time_t cycle_t; //int[-cycle-P, cycle]
 
 chan send[n];
 chan receive[n][n];
 
-time_t local_time[n];
+cycle_t local_time[n];
 int[-1, 1] diff[n];
 
 time_t min(time_t x, time_t y)
@@ -65,33 +69,33 @@ void increment_diff(const id_t id)
 	<template>
 		<name x="5" y="5">Process</name>
 		<parameter>const id_t id</parameter>
-		<declaration>time_t ARRbounded[n];
+		<declaration>cycle_t ARRbounded[n];
 bool FLAG;
 
 clock t;
 
-time_t calculate_corr()
+cycle_t calculate_local()
 {
-        time_t minval = INF, maxval = 0;
+        cycle_t minval = cycle, maxval = 0;
         for(i : id_t)
                 if(i != id)
                 {
                         minval = min(minval, ARRbounded[i]);
                         maxval = max(maxval, ARRbounded[i]);
                 }
-        return local_time[id] + delta - (minval + maxval) / 2 - P;
+        return local_time[id] + delta - (minval + maxval) / 2 - P; //Must be 0, increment diff
 }</declaration>
 		<location id="id0" x="240" y="64">
 			<label kind="invariant" x="304" y="-16">t &lt;= xi &amp;&amp;
-(!FLAG imply local_time[id] == 0) &amp;&amp;
-(FLAG imply local_time[id] &lt;= ((1+xi)*(beta+delta+epsilon)/xi))</label>
+(!FLAG imply local_time[id] &lt;= 0) &amp;&amp;
+(FLAG imply local_time[id] &lt;= cycle)</label>
 		</location>
 		<init ref="id0"/>
 		<transition>
 			<source ref="id0"/>
 			<target ref="id0"/>
-			<label kind="guard" x="320" y="48">local_time[id] == (1 + xi)*(beta+delta+epsilon)/xi &amp;&amp; FLAG</label>
-			<label kind="assignment" x="320" y="64">local_time[id] = 0,
+			<label kind="guard" x="320" y="48">local_time[id] == cycle &amp;&amp; FLAG</label>
+			<label kind="assignment" x="320" y="64">local_time[id] = calculate_local(),
 FLAG = false,
 increment_diff(id)</label>
 			<nail x="312" y="40"/>
@@ -111,7 +115,7 @@ increment_diff(id)</label>
 			<target ref="id0"/>
 			<label kind="guard" x="184" y="160">t &gt;= xi &amp;&amp;
 FLAG &amp;&amp;
-local_time[id] &lt; (1+xi)*(beta+delta+epsilon)/xi</label>
+local_time[id] &lt; cycle</label>
 			<label kind="assignment" x="184" y="208">local_time[id]++,
 t = 0</label>
 			<nail x="256" y="152"/>

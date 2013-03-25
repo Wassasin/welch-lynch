@@ -13,12 +13,12 @@ E[] (2 * (beta + epsilon) +max(delta, beta + epsilon)) * ((xi + 1) / xi) + delta
 /*
 
 */
-A[] O.finished || (not deadlock && (forall(i : id_t) forall(j : id_t) i != j imply (abs(local_time[i] - local_time[j] + (diff[i] - diff[j]) * P ) <= gamma)))
+A[] forall(i : id_t) forall(j : id_t) i != j imply (abs(local_time[i] - local_time[j] + (diff[i] - diff[j]) * P ) <= gamma)
 
 /*
 
 */
-E<> O.finished
+A[] O.finished || (not deadlock && (forall(i : id_t) forall(j : id_t) i != j imply (abs(local_time[i] - local_time[j] + (diff[i] - diff[j]) * P ) <= gamma)))
 
 /*
 
