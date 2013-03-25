@@ -19,7 +19,7 @@ const time_t beta = 10; // maximal allowed difference between the synchronized c
 const time_t gamma = beta + epsilon + (7 * beta + 3 * delta + 7 * epsilon) / xi + 8 * (beta + delta + epsilon) / (xi * xi) + 4 * (beta + delta + epsilon) / (xi * xi * xi);
 const time_t cycle = (1+xi)*(beta+delta+epsilon)/xi;
 
-typedef time_t cycle_t; //int[-cycle-P, cycle]
+typedef int[-P+cycle/2+delta, cycle] cycle_t;
 
 chan send[n];
 chan receive[n][n];
@@ -114,8 +114,8 @@ increment_diff(id)</label>
 			<source ref="id0"/>
 			<target ref="id0"/>
 			<label kind="guard" x="184" y="160">t &gt;= xi &amp;&amp;
-FLAG &amp;&amp;
-local_time[id] &lt; cycle</label>
+(!FLAG imply local_time[id] &lt; 0) &amp;&amp;
+(FLAG imply local_time[id] &lt; cycle)</label>
 			<label kind="assignment" x="184" y="208">local_time[id]++,
 t = 0</label>
 			<nail x="256" y="152"/>
