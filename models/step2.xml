@@ -10,12 +10,12 @@ const time_t INF = 32767;
 
 const int n = process_count;
 
-const time_t xi = 20; // rho is the max drift of the physical clock; xi is 1/rho
-const time_t delta = 5; // mean transfer delay of messages
-const time_t epsilon = 1; // max deviation of transfer delay of messages
-const time_t P = 50; // time after which the clock must be resynchronized
-const time_t beta = 50; // maximal allowed difference between the synchronized clocks
-const time_t gamma = beta + epsilon + (7 * beta + 3 * delta + 7 * epsilon) / xi + 8 * (beta + delta + epsilon) / (xi * xi) + 4 * (beta + delta + epsilon) / (xi * xi * xi);
+const time_t xi = 140; // rho is the max drift of the physical clock; xi is 1/rho
+const time_t delta = 4; // mean transfer delay of messages
+const time_t epsilon = 2; // max deviation of transfer delay of messages
+const time_t P = 42; // time after which the clock must be resynchronized
+const time_t beta = 10; // maximal allowed difference between the synchronized clocks
+const time_t gamma = 12;//beta + epsilon + (7 * beta + 3 * delta + 7 * epsilon) / xi + 8 * (beta + delta + epsilon) / (xi * xi) + 4 * (beta + delta + epsilon) / (xi * xi * xi);
 
 chan send[n];
 chan receive[n][n];
@@ -177,7 +177,7 @@ C0 = Channel(0);
 C1 = Channel(1);
 C2 = Channel(2);
 
-O = Observer(10);
+O = Observer(500);
 
 system P0, P1, P2, C0, C1, C2, O;</system>
 </nta>
