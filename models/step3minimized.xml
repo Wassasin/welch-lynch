@@ -3,7 +3,7 @@
 <nta>
 	<declaration>const int process_count = 3;
 
-typedef scalar[process_count] id_t;
+typedef int[0,process_count-1] id_t;
 typedef int time_t;
 
 const time_t INF = 32767;
@@ -27,9 +27,6 @@ chan receive[id_t][id_t];
 time_t local_time[id_t];
 int[-1, 2] diff[id_t];
 bool b[id_t][id_t];
-
-bool p_init[id_t];
-bool c_init[id_t];
 
 time_t min(time_t x, time_t y)
 {
@@ -105,8 +102,8 @@ bool jump_after_allowed()
 }</declaration>
 	<template>
 		<name x="5" y="5">Process</name>
-		<declaration>id_t id;
-time_t SUM = 0;
+		<parameter>const id_t id</parameter>
+		<declaration>time_t SUM = 0;
 bool FLAG;
 
 clock t;
@@ -122,10 +119,7 @@ clock t;
                 }
         return local_time[id] + delta - (minval + maxval) / 2 - P; //Must be 0, increment diff
 }*/</declaration>
-		<location id="id0" x="120" y="256">
-			<urgent/>
-		</location>
-		<location id="id1" x="240" y="64">
+		<location id="id0" x="240" y="64">
 			<label kind="invariant" x="304" y="-16">t &lt;= xi &amp;&amp;
 (!FLAG imply local_time[id] &lt;= 0) &amp;&amp;
 (FLAG imply local_time[id] &lt;= cycle)</label>
@@ -133,16 +127,7 @@ clock t;
 		<init ref="id0"/>
 		<transition>
 			<source ref="id0"/>
-			<target ref="id1"/>
-			<label kind="select" x="8" y="168">i : id_t</label>
-			<label kind="guard" x="8" y="184">!p_init[i]</label>
-			<label kind="assignment" x="8" y="200">id = i,
-p_init[i] = true</label>
-			<nail x="120" y="144"/>
-		</transition>
-		<transition>
-			<source ref="id1"/>
-			<target ref="id1"/>
+			<target ref="id0"/>
 			<label kind="guard" x="320" y="48">local_time[id] == cycle &amp;&amp; FLAG</label>
 			<label kind="assignment" x="320" y="64">local_time[id] = local_time[id]+delta-SUM/2-P,
 FLAG = false,
@@ -152,8 +137,8 @@ increment_diff(id)</label>
 			<nail x="312" y="104"/>
 		</transition>
 		<transition>
-			<source ref="id1"/>
-			<target ref="id1"/>
+			<source ref="id0"/>
+			<target ref="id0"/>
 			<label kind="guard" x="-72" y="48">local_time[id] == 0 &amp;&amp; !FLAG</label>
 			<label kind="synchronisation" x="72" y="64">send[id]!</label>
 			<label kind="assignment" x="48" y="80">FLAG = true</label>
@@ -161,8 +146,8 @@ increment_diff(id)</label>
 			<nail x="152" y="96"/>
 		</transition>
 		<transition>
-			<source ref="id1"/>
-			<target ref="id1"/>
+			<source ref="id0"/>
+			<target ref="id0"/>
 			<label kind="guard" x="184" y="160">t &gt;= xi &amp;&amp;
 (!FLAG imply (local_time[id] &lt; 0 &amp;&amp; not jump_before_allowed())) &amp;&amp;
 (FLAG imply (local_time[id] &lt; cycle &amp;&amp; not jump_after_allowed()))</label>
@@ -172,8 +157,8 @@ t = 0</label>
 			<nail x="192" y="152"/>
 		</transition>
 		<transition>
-			<source ref="id1"/>
-			<target ref="id1"/>
+			<source ref="id0"/>
+			<target ref="id0"/>
 			<label kind="select" x="216" y="-72">k : id_t</label>
 			<label kind="synchronisation" x="192" y="-56">receive[id][k]?</label>
 			<label kind="assignment" x="144" y="-40">SUM = SUM+local_time[id]</label>
@@ -183,20 +168,20 @@ t = 0</label>
 	</template>
 	<template>
 		<name>Helper</name>
-		<location id="id2" x="0" y="0">
+		<location id="id1" x="0" y="0">
 		</location>
-		<init ref="id2"/>
+		<init ref="id1"/>
 		<transition>
-			<source ref="id2"/>
-			<target ref="id2"/>
+			<source ref="id1"/>
+			<target ref="id1"/>
 			<label kind="guard" x="-128" y="136">jump_after_allowed()</label>
 			<label kind="assignment" x="-128" y="152">jump_time_after()</label>
 			<nail x="0" y="128"/>
 			<nail x="-136" y="128"/>
 		</transition>
 		<transition>
-			<source ref="id2"/>
-			<target ref="id2"/>
+			<source ref="id1"/>
+			<target ref="id1"/>
 			<label kind="guard" x="0" y="-152">jump_before_allowed()</label>
 			<label kind="assignment" x="0" y="-136">jump_time_before()</label>
 			<nail x="0" y="-112"/>
@@ -207,53 +192,41 @@ t = 0</label>
 		<name>Observer</name>
 		<parameter>const time_t t</parameter>
 		<declaration>clock c;</declaration>
-		<location id="id3" x="0" y="-96">
+		<location id="id2" x="0" y="-96">
 			<name x="16" y="-120">finished</name>
 		</location>
-		<location id="id4" x="0" y="0">
+		<location id="id3" x="0" y="0">
 			<name x="24" y="-16">processing</name>
 			<label kind="invariant" x="24" y="0">c &lt;= t</label>
 		</location>
-		<init ref="id4"/>
+		<init ref="id3"/>
 		<transition>
-			<source ref="id4"/>
-			<target ref="id3"/>
+			<source ref="id3"/>
+			<target ref="id2"/>
 			<label kind="guard" x="16" y="-56">c == t</label>
 		</transition>
 	</template>
 	<template>
 		<name>Channel</name>
-		<declaration>id_t id;
-clock t;
+		<parameter>const id_t id</parameter>
+		<declaration>clock t;
 
 void reset_b()
 {
     for(i : id_t)
         b[id][i] = true;
 }</declaration>
-		<location id="id5" x="-176" y="-176">
-			<urgent/>
-		</location>
-		<location id="id6" x="264" y="-16">
+		<location id="id4" x="264" y="-16">
 			<name x="288" y="-32">sending</name>
 			<label kind="invariant" x="288" y="-16">t &lt;= xi * (delta+epsilon)</label>
 		</location>
-		<location id="id7" x="-72" y="-16">
+		<location id="id5" x="-72" y="-16">
 			<name x="-56" y="-32">idle</name>
 		</location>
 		<init ref="id5"/>
 		<transition>
 			<source ref="id5"/>
-			<target ref="id7"/>
-			<label kind="select" x="-160" y="-149">i : id_t</label>
-			<label kind="guard" x="-160" y="-134">!c_init[i]</label>
-			<label kind="assignment" x="-160" y="-112">id = i,
-c_init[i] = true</label>
-			<nail x="-176" y="-72"/>
-		</transition>
-		<transition>
-			<source ref="id7"/>
-			<target ref="id6"/>
+			<target ref="id4"/>
 			<label kind="synchronisation" x="72" y="96">send[id]?</label>
 			<label kind="assignment" x="72" y="111">t = 0,
 reset_b()</label>
@@ -261,14 +234,14 @@ reset_b()</label>
 			<nail x="192" y="80"/>
 		</transition>
 		<transition>
-			<source ref="id6"/>
-			<target ref="id7"/>
+			<source ref="id4"/>
+			<target ref="id5"/>
 			<label kind="guard" x="-80" y="32">(t &lt;= xi * (delta+epsilon)) &amp;&amp; forall(l : id_t) l != id imply !b[id][l]</label>
 			<nail x="104" y="24"/>
 		</transition>
 		<transition>
-			<source ref="id6"/>
-			<target ref="id6"/>
+			<source ref="id4"/>
+			<target ref="id4"/>
 			<label kind="select" x="112" y="-272">l : id_t</label>
 			<label kind="guard" x="112" y="-256">l != id &amp;&amp; b[id][l] &amp;&amp; t &gt;= xi * (delta-epsilon)</label>
 			<label kind="synchronisation" x="112" y="-241">receive[l][id]!</label>
@@ -279,13 +252,13 @@ reset_b()</label>
 			<nail x="416" y="-120"/>
 		</transition>
 	</template>
-	<system>P0 = Process();
-P1 = Process();
-P2 = Process();
+	<system>P0 = Process(0);
+P1 = Process(1);
+P2 = Process(2);
 
-C0 = Channel();
-C1 = Channel();
-C2 = Channel();
+C0 = Channel(0);
+C1 = Channel(1);
+C2 = Channel(2);
 
 //O = Observer(500);
 H = Helper();
