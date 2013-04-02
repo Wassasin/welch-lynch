@@ -10,11 +10,11 @@ const time_t INF = 32767;
 
 const int n = process_count;
 
-const time_t xi = 140; // rho is the max drift of the physical clock; xi is 1/rho
-const time_t delta = 4; // mean transfer delay of messages
-const time_t epsilon = 2; // max deviation of transfer delay of messages
-const time_t P = 42; // time after which the clock must be resynchronized
-const time_t beta = 10; // maximal allowed difference between the synchronized clocks
+const time_t xi = 80; // rho is the max drift of the physical clock; xi is 1/rho
+const time_t delta = 2; // mean transfer delay of messages
+const time_t epsilon = 1; // max deviation of transfer delay of messages
+const time_t P = 22; // time after which the clock must be resynchronized
+const time_t beta = 6; // maximal allowed difference between the synchronized clocks
 
 const time_t gamma = beta + epsilon + (7 * beta + 3 * delta + 7 * epsilon) / xi + 8 * (beta + delta + epsilon) / (xi * xi) + 4 * (beta + delta + epsilon) / (xi * xi * xi);
 const time_t cycle = (1+xi)*(beta+delta+epsilon)/xi;
@@ -99,7 +99,7 @@ bool jump_after_allowed()
 {
     return(
         (forall(i : id_t) local_time[i] &gt; 0) &amp;&amp;
-        (exists(i : id_t) local_time[i] &lt;= delta+epsilon)) &amp;&amp;
+        (exists(i : id_t) local_time[i] &lt;= delta+epsilon) &amp;&amp;
         (forall(i : id_t)
             forall(j : id_t) i != j imply !b[i][j]));
 }</declaration>
