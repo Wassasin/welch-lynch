@@ -129,7 +129,7 @@ clock t;
 			<source ref="id0"/>
 			<target ref="id0"/>
 			<label kind="guard" x="320" y="48">local_time[id] == cycle &amp;&amp; FLAG</label>
-			<label kind="assignment" x="320" y="64">local_time[id] = local_time[id]+delta-SUM/(n-1)-P,
+			<label kind="assignment" x="320" y="64">local_time[id] = local_time[id]+delta-SUM/2-P,
 FLAG = false,
 SUM = 0,
 increment_diff(id)</label>
