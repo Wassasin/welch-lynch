@@ -129,7 +129,7 @@ clock t;
 			<source ref="id0"/>
 			<target ref="id0"/>
 			<label kind="guard" x="320" y="48">local_time[id] == cycle &amp;&amp; FLAG</label>
-			<label kind="assignment" x="320" y="64">local_time[id] = local_time[id]+delta-SUM/2-P,
+			<label kind="assignment" x="320" y="64">local_time[id] = local_time[id]+delta-SUM/(n-1)-P,
 FLAG = false,
 SUM = 0,
 increment_diff(id)</label>
@@ -174,18 +174,18 @@ t = 0</label>
 		<transition>
 			<source ref="id1"/>
 			<target ref="id1"/>
-			<label kind="guard" x="-128" y="136">jump_after_allowed()</label>
-			<label kind="assignment" x="-128" y="152">jump_time_after()</label>
-			<nail x="0" y="128"/>
-			<nail x="-136" y="128"/>
+			<label kind="guard" x="-88" y="64">jump_after_allowed()</label>
+			<label kind="assignment" x="-88" y="80">jump_time_after()</label>
+			<nail x="0" y="56"/>
+			<nail x="-48" y="56"/>
 		</transition>
 		<transition>
 			<source ref="id1"/>
 			<target ref="id1"/>
-			<label kind="guard" x="0" y="-152">jump_before_allowed()</label>
-			<label kind="assignment" x="0" y="-136">jump_time_before()</label>
-			<nail x="0" y="-112"/>
-			<nail x="144" y="-112"/>
+			<label kind="guard" x="-88" y="-96">jump_before_allowed()</label>
+			<label kind="assignment" x="-88" y="-80">jump_time_before()</label>
+			<nail x="0" y="-56"/>
+			<nail x="48" y="-56"/>
 		</transition>
 	</template>
 	<template>
@@ -220,36 +220,34 @@ void reset_b()
 			<name x="288" y="-32">sending</name>
 			<label kind="invariant" x="288" y="-16">t &lt;= xi * (delta+epsilon)</label>
 		</location>
-		<location id="id5" x="-72" y="-16">
-			<name x="-56" y="-32">idle</name>
+		<location id="id5" x="264" y="96">
+			<name x="280" y="80">idle</name>
 		</location>
 		<init ref="id5"/>
 		<transition>
 			<source ref="id5"/>
 			<target ref="id4"/>
-			<label kind="synchronisation" x="72" y="96">send[id]?</label>
-			<label kind="assignment" x="72" y="111">t = 0,
+			<label kind="synchronisation" x="296" y="16">send[id]?</label>
+			<label kind="assignment" x="296" y="32">t = 0,
 reset_b()</label>
-			<nail x="-32" y="80"/>
-			<nail x="192" y="80"/>
+			<nail x="288" y="40"/>
 		</transition>
 		<transition>
 			<source ref="id4"/>
 			<target ref="id5"/>
-			<label kind="guard" x="-80" y="32">(t &lt;= xi * (delta+epsilon)) &amp;&amp; forall(l : id_t) l != id imply !b[id][l]</label>
-			<nail x="104" y="24"/>
+			<label kind="guard" x="-16" y="24">(t &lt;= xi * (delta+epsilon)) &amp;&amp;
+forall(l : id_t) l != id imply !b[id][l]</label>
+			<nail x="232" y="40"/>
 		</transition>
 		<transition>
 			<source ref="id4"/>
 			<target ref="id4"/>
-			<label kind="select" x="112" y="-272">l : id_t</label>
-			<label kind="guard" x="112" y="-256">l != id &amp;&amp; b[id][l] &amp;&amp; t &gt;= xi * (delta-epsilon)</label>
-			<label kind="synchronisation" x="112" y="-241">receive[l][id]!</label>
-			<label kind="assignment" x="112" y="-226">b[id][l] = false</label>
-			<nail x="72" y="-136"/>
-			<nail x="64" y="-200"/>
-			<nail x="440" y="-200"/>
-			<nail x="416" y="-120"/>
+			<label kind="select" x="232" y="-184">l : id_t</label>
+			<label kind="guard" x="232" y="-168">l != id &amp;&amp; b[id][l] &amp;&amp; t &gt;= xi * (delta-epsilon)</label>
+			<label kind="synchronisation" x="232" y="-153">receive[l][id]!</label>
+			<label kind="assignment" x="232" y="-138">b[id][l] = false</label>
+			<nail x="224" y="-112"/>
+			<nail x="296" y="-112"/>
 		</transition>
 	</template>
 	<system>P0 = Process(0);
