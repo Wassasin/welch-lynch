@@ -126,6 +126,21 @@ It was soon getting clear that all other optimizations had to be applied as well
 
 \section{Towards faulty process\label{sec:faulty}}
 
+Our highly optimized model turned out to be verifiable, as turns out in section~\ref{sec:performance}. However, this is only under the assumption of no faulty processes. It would certainly be interesting to put the fault-tolerance to the test. In \cite{Welch1984Anew} it is claimed that the protocol works correctly when there are at least \(3f+1\) processes in the system, where \(f\) is the number of faulty processes. The first interesting case, \(f=1\), still means that there have to be at least four processes, which we won't be able to calculate. The only thing we could do was to make our models easier extendible. We applied three changes to manage this.
+
+\begin{enumerate}
+\item \textbf{\texttt{diff} variable} \\
+	The optimized 2004 model contains a \texttt{diff} variable with an update statement that appears complicated. This statement computes the round difference between two specific processes, which is either -1, 0 or 1. In order to generalize this for all processes, a C-like function was introduced to compute the relative round differences compared to the process in the highest round, i.e. with the highest \texttt{diff} value.
+
+\item \textbf{Concrete types} \\
+	% TODO ik weet niet meer wat hiermee bedoeld werd?
+
+\item \textbf{Removing \texttt{SUM}} \\
+	The introduction of a single \texttt{SUM} variable in our optimization list might be more efficient, but it's not usable when four or more processes are used. This is why we removed it and record a minimal and maximal value during the receiving of messages. Although this is slightly less efficient than our optimized model, it is still more efficient than the 2004 model where an array had to be used, and it is definitely more flexible.
+\end{enumerate}
+
+If we would have been able to calculate a system with four processes, our next step would be to add a faulty process to the system, which is able to send or claim to have received messages at any time.
+
 %Aanpassingen voor generiekerheid
 %Aanpassingen die we nog wilde doen, indien we 5 processen hadden kunnen modelleren
 
