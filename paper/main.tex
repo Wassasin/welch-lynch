@@ -146,6 +146,21 @@ If we would have been able to calculate a system with four processes, our next s
 
 \section{Remarks on \cite{Aceto2004Notes}\label{sec:remarks}}
 
+In the process of our analysis, we have been troubled by some ambiguities that arose from \cite{Aceto2004Notes}. Again, these are enumerated below.
+
+\begin{enumerate}
+\item \textbf{Unclear what is computable} \\
+	The paper does not claim what has actually been computable. It does not claim to have successfully verified any property. This made it hard for us to know what to expect. We hoped to go a bit further than only three processes.
+
+\item \textbf{No constant values} \\
+	The protocol depends on a number of constants: \(\xi\), \(\delta\), \(\epsilon\), \(P\) and \(\beta\). Some constraints have been derived on these constants for the algorithm to work correctly:
+	\[ (2(\beta+\epsilon)+\textrm{max}(\delta,\beta+\epsilon))\frac{\xi+1}{\xi} + \frac{\delta}{\epsilon} < P \le (\frac{\beta}{4}-\epsilon)\xi + \frac{\beta+\delta+\epsilon}{\xi}-2\beta-\delta-2\epsilon \]
+	As no specific values that fulfil these constraints are given anywhere, it actually turned out to be non-trivial what values to pick. We first tried to verify this constraint in \UPPAAL itself, but it then turned out that \UPPAAL{}s integer division affected the upper bound in such a way that the property could not get satisfied. We were looking for a set of values that were as small as possible and we finally settled on a seemingly arbitrary \(\xi=80\), \(\delta=2\), \(\epsilon=1\), \(P=22\) and \(\beta=6\). We assumed that the constraints are derived correctly and we computed that this set of values satisfy the constraints.
+
+\item \textbf{Variable types} \\
+	In the paper, only pictures of models can be seen, not all declarations that are made in \UPPAAL. This made it in some instances unclear what the types of certain variables should have been. It also caused minor problems for making the types bounded. We ended up with a \texttt{typedef int[\(-P+\text{cycle}/2+\delta\), cycle] cycle\_t}, where \texttt{cycle} = \(\frac{\xi+1}{\xi}(\beta+\delta+\epsilon)\), by deriving the bounds ourselves, but it would definitely have been easier if this information had been available anywhere.
+\end{enumerate}
+
 %Niet duidelijk of ze daadwerkelijk het model hebben kunnen doorrekenen
 %Geen concrete waarden voor constanten; beschrijving van zoektocht
 %Onduidelijk wat het type is van variablen
