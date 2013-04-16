@@ -65,7 +65,7 @@
 
 This report is part of an assignment for the Analysis of Embedded Systems course in 2012--2013. Our goal was to model and analyze the Welch-Lynch fault-tolerant clock synchronization protocol \cite{Welch1984Anew} using \UPPAAL. A previous attempt has been made in 2004 \cite{Aceto2004Notes}, when the model had to be greatly simplified. New \UPPAAL features like symmetry reduction, a richer syntax and a more powerful verification engine in general, make that the model-based analysis deserved another chance.
 
-The algorithm in its most general form still does not directly translate to an \UPPAAL model that is actually verifiable. This report first describes what optimizations, simplifications and updates have been applied to a general model. Then in section~\ref{sec:faulty} it is explained what else would have been needed to be able to verify a general version of the protocol. In section~\ref{sec:remarks} some remarks are made on \cite{Aceto2004Notes}, which explain some troubles that appeared in the process of this analysis. Finally in section~\ref{sec:performance} the performance of our optimized model is compared to the 2004 version, after which we draw our conclusions. \UPPAAL is able to verify the correctness of the protocol for three participating processes with a highly optimized model, but then we are already approaching the limit of \UPPAAL{}s capabilities.
+The algorithm in its most general form still does not directly translate to an \UPPAAL model that is actually verifiable. This report first describes what optimizations, simplifications and updates have been applied to a general model. Then in section~\ref{sec:faulty} it is explained what else would have been needed to be able to verify a general version of the protocol. In section~\ref{sec:remarks} some remarks are made on \cite{Aceto2004Notes}, which explain some troubles that appeared in the process of this analysis. Next, our models are examined alongside the quality criteria for \UPPAAL models. Finally in section~\ref{sec:performance}, the performance of our optimized model is compared to the 2004 version, after which we draw our conclusions. \UPPAAL is able to verify the correctness of the protocol for three participating processes with a highly optimized model, but then we are already approaching the limit of \UPPAAL{}s capabilities.
 
 \section{Optimizations}
 
@@ -126,6 +126,21 @@ It was soon getting clear that all other optimizations had to be applied as well
 
 \section{Towards faulty process\label{sec:faulty}}
 
+Our highly optimized model turned out to be verifiable, as turns out in section~\ref{sec:performance}. However, this is only under the assumption of no faulty processes. It would certainly be interesting to put the fault-tolerance to the test. In \cite{Welch1984Anew} it is claimed that the protocol works correctly when there are at least \(3f+1\) processes in the system, where \(f\) is the number of faulty processes. The first interesting case, \(f=1\), still means that there have to be at least four processes, which we won't be able to calculate. The only thing we could do was to make our models easier extendible. We applied three changes to manage this.
+
+\begin{enumerate}
+\item \textbf{\texttt{diff} variable} \\
+	The optimized 2004 model contains a \texttt{diff} variable with an update statement that appears complicated. This statement computes the round difference between two specific processes, which is either -1, 0 or 1. In order to generalize this for all processes, a C-like function was introduced to compute the relative round differences compared to the process in the highest round, i.e. with the highest \texttt{diff} value.
+
+\item \textbf{Concrete types} \\
+	% TODO ik weet niet meer wat hiermee bedoeld werd?
+
+\item \textbf{Removing \texttt{SUM}} \\
+	The introduction of a single \texttt{SUM} variable in our optimization list might be more efficient, but it's not usable when four or more processes are used. This is why we removed it and record a minimal and maximal value during the receiving of messages. Although this is slightly less efficient than our optimized model, it is still more efficient than the 2004 model where an array had to be used, and it is definitely more flexible.
+\end{enumerate}
+
+If we would have been able to calculate a system with four processes, our next step would be to add a faulty process to the system, which is able to send or claim to have received messages at any time.
+
 %Aanpassingen voor generiekerheid
 %Aanpassingen die we nog wilde doen, indien we 5 processen hadden kunnen modelleren
 
@@ -135,7 +150,7 @@ It was soon getting clear that all other optimizations had to be applied as well
 %Geen concrete waarden voor constanten; beschrijving van zoektocht
 %Onduidelijk wat het type is van variablen
 
-\section{Quality of the model}
+\section{Quality\label{sec:quality}}
 
 %Toelichten dat het leesbaarder is a.d.v. A First Introduction to UPPAAL
 
