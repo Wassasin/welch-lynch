@@ -65,7 +65,7 @@
 
 This report is part of an assignment for the Analysis of Embedded Systems course in 2012--2013. Our goal was to model and analyze the Welch-Lynch fault-tolerant clock synchronization protocol \cite{Welch1984Anew} using \UPPAAL. A previous attempt has been made in 2004 \cite{Aceto2004Notes}, when the model had to be greatly simplified. New \UPPAAL features like symmetry reduction, a richer syntax and a more powerful verification engine in general, make that the model-based analysis deserved another chance.
 
-The algorithm in its most general form still does not directly translate to an \UPPAAL model that is actually verifiable. This report first describes what optimizations, simplifications and updates have been applied to a general model. Then in section~\ref{sec:faulty} it is explained what else would have been needed to be able to verify a general version of the protocol. In section~\ref{sec:remarks} some remarks are made on \cite{Aceto2004Notes}, which explain some troubles that appeared in the process of this analysis. Finally in section~\ref{sec:performance} the performance of our optimized model is compared to the 2004 version, after which we draw our conclusions. \UPPAAL is able to verify the correctness of the protocol for three participating processes with a highly optimized model, but then we are already approaching the limit of \UPPAAL{}s capabilities.
+The algorithm in its most general form still does not directly translate to an \UPPAAL model that is actually verifiable. This report first describes what optimizations, simplifications and updates have been applied to a general model. Then in section~\ref{sec:faulty} it is explained what else would have been needed to be able to verify a general version of the protocol. In section~\ref{sec:remarks} some remarks are made on \cite{Aceto2004Notes}, which explain some troubles that appeared in the process of this analysis. Next, our models are examined alongside the quality criteria for \UPPAAL models. Finally in section~\ref{sec:performance}, the performance of our optimized model is compared to the 2004 version, after which we draw our conclusions. \UPPAAL is able to verify the correctness of the protocol for three participating processes with a highly optimized model, but then we are already approaching the limit of \UPPAAL{}s capabilities.
 
 \section{Optimizations}
 
@@ -123,7 +123,6 @@ It was soon getting clear that all other optimizations had to be applied as well
 \end{enumerate}
 
 %Aanpassingen voor snelheid
-%Toelichten dat het leesbaarder is a.d.v. A First Introduction to UPPAAL
 
 \section{Towards faulty process\label{sec:faulty}}
 
@@ -135,6 +134,10 @@ It was soon getting clear that all other optimizations had to be applied as well
 %Niet duidelijk of ze daadwerkelijk het model hebben kunnen doorrekenen
 %Geen concrete waarden voor constanten; beschrijving van zoektocht
 %Onduidelijk wat het type is van variablen
+
+\section{Quality\label{sec:quality}}
+
+%Toelichten dat het leesbaarder is a.d.v. A First Introduction to UPPAAL
 
 \section{Performance\label{sec:performance}}
 
