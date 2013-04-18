@@ -239,7 +239,5 @@ forall(l : id_t) l != id imply !b[id][l]</label>
 			<nail x="296" y="-112"/>
 		</transition>
 	</template>
-	<system>H = Helper();
-
-system Process, Channel, H;</system>
+	<system>system Process, Channel, Helper;</system>
 </nta>
