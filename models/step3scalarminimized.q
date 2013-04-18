@@ -18,19 +18,4 @@ A[] not deadlock
 /*
 
 */
-A[] (not deadlock) && forall(i : id_t) forall(j : id_t) i != j imply (abs(local_time[i] - local_time[j] + (diff[i] - diff[j]) * P ) <= gamma)
-
-/*
-
-*/
-A[] O.finished || (not deadlock && (forall(i : id_t) forall(j : id_t) i != j imply (abs(local_time[i] - local_time[j] + (diff[i] - diff[j]) * P ) <= gamma)))
-
-/*
-
-*/
-A[] deadlock imply O.finished
-
-/*
-
-*/
-A[] O.finished || (forall(i : id_t) forall(j : id_t) i != j imply (abs(local_time[i] - local_time[j] + (diff[i] - diff[j]) * P ) <= gamma))
+A[] forall(i : id_t) forall(j : id_t) i != j imply (abs(local_time[i] - local_time[j] + (diff[i] - diff[j]) * P ) <= gamma)

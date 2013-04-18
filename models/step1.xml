@@ -10,11 +10,12 @@ const time_t INF = 32767;
 
 const int n = process_count;
 
-const time_t xi = 1;
-const time_t delta = 1;
-const time_t epsilon = 1;
-const time_t P = 10;
-const time_t beta = 1;
+const time_t xi = 80; // rho is the max drift of the physical clock; xi is 1/rho
+const time_t delta = 2; // mean transfer delay of messages
+const time_t epsilon = 1; // max deviation of transfer delay of messages
+const time_t P = 22; // time after which the clock must be resynchronized
+const time_t beta = 6; // maximal allowed difference between the synchronized clocks
+
 const time_t gamma = beta + epsilon + (7 * beta + 3 * delta + 7 * epsilon) / xi + 8 * (beta + delta + epsilon) / (xi * xi) + 4 * (beta + delta + epsilon) / (xi * xi * xi);
 
 int[0,n-1] k, l;
@@ -175,16 +176,8 @@ C=C+1</label>
 			<nail x="-48" y="96"/>
 		</transition>
 	</template>
-	<system>P0 = Process(0);
-P1 = Process(1);
-P2 = Process(2);
-
-C0 = Channel(0);
-C1 = Channel(1);
-C2 = Channel(2);
-
-CHk = Choice(k);
+	<system>CHk = Choice(k);
 CHl = Choice(l);
 
-system P0, P1, P2, C0, C1, C2, CHk, CHl;</system>
+system Process, Channel, CHk, CHl;</system>
 </nta>
