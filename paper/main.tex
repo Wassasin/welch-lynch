@@ -49,7 +49,6 @@
 
 %Aanpassingen voor generiekerheid
 %	Diff variable upgrade
-%	Concrete types
 %	Min en max (zelfs trager dan SUM) [step4]
 
 %Resultaten: Vergelijkingen in performance
@@ -80,7 +79,7 @@ It was soon getting clear that all other optimizations had to be applied as well
 
 \begin{enumerate}
 \item \textbf{C-like functions} \\
-	The \UPPAAL C-like declaration language has been enriched extensively over the years. For instance, in 2004, one was not able to use functions and complicated constructions had to be thought off to simulate the behaviour. In figure~\ref{fig:original_process}, the right part uses a committed state to iterate over an array to determine its minimal and maximal values. A similar structure is seen in the channel automaton. Luckily the new syntax allows us to replace these structures by C-like functions. Due to the nature of a committed state, this does not directly highly decrease the state space, but it allows for the removal of some variables, transitions and complex update statements. This at least makes the model more comprehensible. The result can be seen in figure~\ref{fig:step1_process}.
+	The \UPPAAL C-like declaration language has been enriched extensively over the years. For instance, in 2004, one was not able to use functions and complicated constructions had to be thought off to simulate the behaviour. In figure~\ref{fig:original_process}, the right part uses a committed state to iterate over an array to determine its minimal and maximal values. A similar structure is seen in the channel automaton. Luckily the new syntax allows us to replace these structures by C-like functions. Due to the nature of a committed state, this does not directly highly decrease the state space, but it allows for the removal of some variables, transitions and complex update statements. This makes the model more comprehensible. The removal of the variables \texttt{min} and \texttt{max} then does result in a decreased state space. The result can be seen in figure~\ref{fig:step1_process}.
 
 \begin{figure}[!h]
 \includegraphics[width=\textwidth]{step1_process}
@@ -105,7 +104,7 @@ It was soon getting clear that all other optimizations had to be applied as well
 \end{figure}
 
 \item \textbf{Symmetry reduction} \\
-	Symmetry reduction \cite{Hendriks2004Adding} is a powerful technique to drastically reduce both computation time and memory usage. This reduction is exponential in the size of the scalar sets, a symmetric data type, that are used. The processes in the protocol are highly symmetrical. When their IDs are defined as a scalar set type, the \UPPAAL verifier can use so-called \textit{state swaps} to reduce the state space. For instance, their used to be lots of different orders in which the \texttt{local\_time} counter could be incremented. Using symmetry reduction, the order is not important anymore.
+	Symmetry reduction \cite{Hendriks2004Adding} is a powerful technique to drastically reduce both computation time and memory usage. This reduction is exponential in the size of the scalar sets, a symmetric data type, that are used. The processes in the protocol are highly symmetrical. When their IDs are defined as a scalar set type, the \UPPAAL verifier can use so-called \textit{state swaps} to reduce the state space. For instance, there are different orders in which the \texttt{local\_time} counter can be incremented. Using symmetry reduction, the branching resulting from this ordening is reduced.
 
 \item \textbf{Extended guards} \\
 	The channel automaton used to contain a variable \(C\) that counted how many messages had been received. When all messages had been received, another transition could be taken. This variable has been removed completely, due to a richer syntax which allows for guards with \texttt{forall} modifiers. Now it's easier to check if all messages have been received, i.e. if all boolean values in an array are set to true. In figure~\ref{fig:original_channel}, one can see the original channel, while figure~\ref{fig:step4scalar_channel} shows the optimized automaton.
@@ -126,23 +125,34 @@ It was soon getting clear that all other optimizations had to be applied as well
 
 \section{Towards faulty process\label{sec:faulty}}
 
-Our highly optimized model turned out to be verifiable, as turns out in section~\ref{sec:performance}. However, this is only under the assumption of no faulty processes. It would certainly be interesting to put the fault-tolerance to the test. In \cite{Welch1984Anew} it is claimed that the protocol works correctly when there are at least \(3f+1\) processes in the system, where \(f\) is the number of faulty processes. The first interesting case, \(f=1\), still means that there have to be at least four processes, which we won't be able to calculate. The only thing we could do was to make our models easier extendible. We applied three changes to manage this.
+Our highly optimized model turned out to be verifiable, as turns out in section~\ref{sec:performance}. However, this is only under the assumption of no faulty processes. It would certainly be interesting to put the fault-tolerance to the test. In \cite{Welch1984Anew} it is claimed that the protocol works correctly when there are at least \(3f+1\) processes in the system, where \(f\) is the number of faulty processes. The first interesting case, \(f=1\), still means that there have to be at least four processes, which we won't be able to calculate. The only thing we could do was to make our models easier extendible. We applied two changes to manage this.
+
+%Aanpassingen voor generiekerheid
 
 \begin{enumerate}
 \item \textbf{\texttt{diff} variable} \\
-	The optimized 2004 model contains a \texttt{diff} variable with an update statement that appears complicated. This statement computes the round difference between two specific processes, which is either -1, 0 or 1. In order to generalize this for all processes, a C-like function was introduced to compute the relative round differences compared to the process in the highest round, i.e. with the highest \texttt{diff} value.
-
-\item \textbf{Concrete types} \\
-	% TODO ik weet niet meer wat hiermee bedoeld werd?
+	The optimized 2004 model contains a \texttt{diff} variable with an update statement that appears complicated. This statement computes the round difference between two specific processes, which is either -1, 0 or 1. This variable is used to verify models using the \texttt{local\_time} optimization, and can only be used for checking the processes with ids 0 and 1. In order to generalize this for all processes, and for the usage of scalarsets in which we can not explicitly refer to processes 0 and 1, a C-like function was introduced to compute the relative round differences compared to the process in the highest round, i.e. with the highest \texttt{diff} value. This update results in a bigger state space, as a diff-value for each process is introduced; instead of a single diff-value for the entire model. This penalty can be somewhat mitigated by the now possible use of scalarsets.
 
 \item \textbf{Removing \texttt{SUM}} \\
-	The introduction of a single \texttt{SUM} variable in our optimization list might be more efficient, but it's not usable when four or more processes are used. This is why we removed it and record a minimal and maximal value during the receiving of messages. Although this is slightly less efficient than our optimized model, it is still more efficient than the 2004 model where an array had to be used, and it is definitely more flexible.
+	The introduction of a single \texttt{SUM} variable in our optimization list might be more efficient, but it's not usable when four or more processes are used. This is why we removed it and record a minimal and maximal value during the receiving of messages. This increases the state space by one variable, and paves the way for more then three processes.
 \end{enumerate}
 
-If we would have been able to calculate a system with four processes, our next step would be to add a faulty process to the system, which is able to send or claim to have received messages at any time.
+If we would have been able to calculate a system with four processes, we would have implemented the following two steps:
 
-%Aanpassingen voor generiekerheid
-%Aanpassingen die we nog wilde doen, indien we 5 processen hadden kunnen modelleren
+%Aanpassingen die we nog wilde doen, indien we 4 processen hadden kunnen modelleren
+
+\begin{enumerate}
+\item \textbf{Upgrading \texttt{MIN} and \texttt{MAX} to arrays} \\
+	We would have upgraded the \texttt{MIN} and \texttt{MAX} variables to arrays with a lenght of $f+1$. In the case of $f=1$, we would have stored the top and bottom two timings per process, and averaged the lowest \texttt{MAX} en highest \texttt{MIN} values. This would result in actually ignoring the outliers, thus encompassing the fault-tolerant property of this protocol.
+	
+	Because we were never able to verify the model with four processes, we could never even begin to verify the protocol in the case of a single process ($f=1$). Thus the arrays with length $1$ are sufficient.
+	
+\item \textbf{Faulty process} \\
+	And finally, we would have added a faulty process to the system, which is able to send or claim to have received messages at any time. In the case of scalarsets, because not a single process can be singled out, all processes would have to be able to become faulty. But, at most $f$ processes at any given time would be faulty.
+	
+	Because all outliers are filtered out, this should have no impact on the protocol. Because we can verify at most three processes, we can not model any faulty processes, because with $n = 3, n = 3f+1 \Rightarrow f=0$.
+	
+\end{enumerate}
 
 \section{Remarks on \cite{Aceto2004Notes}\label{sec:remarks}}
 
@@ -150,7 +160,7 @@ In the process of our analysis, we have been troubled by some ambiguities that a
 
 \begin{enumerate}
 \item \textbf{Unclear what is computable} \\
-	The paper does not claim what has actually been computable. It does not claim to have successfully verified any property. This made it hard for us to know what to expect. We hoped to go a bit further than only three processes.
+	The paper does not claim what has actually been computable. It does not claim to have successfully verified any property. This made it hard for us to know what to expect. We hoped to go a bit further than only three processes. In the end, it appears that Aceto et al. \cite{Aceto2004Notes} were not able to verify the system for three processes; as we were not able to verify our copy of their model at all.
 
 \item \textbf{No constant values} \\
 	The protocol depends on a number of constants: \(\xi\), \(\delta\), \(\epsilon\), \(P\) and \(\beta\). Some constraints have been derived on these constants for the algorithm to work correctly:
@@ -169,15 +179,71 @@ In the process of our analysis, we have been troubled by some ambiguities that a
 
 %Toelichten dat het leesbaarder is a.d.v. A First Introduction to UPPAAL
 
+We compare our models to the guidelines stated at the end of ''A First Introduction to UPPAAL``. \cite{Vaandrager2011First}
+
+\begin{enumerate}
+\item \textbf{Object of modelling} \\
+\item \textbf{Purpose} \\
+\item \textbf{Traceable} \\
+\item \textbf{Truthful} \\
+\item \textbf{Simple} \\
+\item \textbf{Extensible and reusable} \\
+\item \textbf{Interoperability and sharing} \\
+\end{enumerate}
+
 \section{Performance\label{sec:performance}}
+
+%	Gebruik van C-functies [step1]
+%	Gebruik van select-statements [step2]
+%	Gebruik van local_time uit originele paper [step3]
+%	Gebruik van SUM uit originele paper [step3minimized]
+%	Timejumps [step3minimized]
+%	Scalarset reduction [step4scalar]
+%	Uitgebreide guards (forall i.p.v. local var C) [step2]
+
+Over time we have implemented various improvements over the original model by Aceto et al. These improvements are:
+
+\begin{enumerate}
+\item various C-functions instead of for-loops in automata
+\item select-statements instead of Choice automata
+\item \texttt{local\_time} as improvement over \texttt{phys\_clock}
+\item \texttt{sum} as improvement over \texttt{ARR}
+\item time jumps to skip uninteresting time
+\item \texttt{min} and \texttt{max} as more general alternative to \texttt{sum}; note that this improvement relatively increases the state space
+\item scalarset reduction
+\end{enumerate}
+
+To measure the relative performance of each model, we ran the models on a machine with 4 GiB ram, and no swap memory. If using \UPPAAL and breadth first search the machine ran out of memory, we declared the model practically \emph{uncomputable}.
+
+\vspace{1 em}
+
+\begin{tabular}{|l|c|l|l|}
+\hline
+\textbf{model} & \textbf{$N$} & \textbf{time} & \textbf{improvements} \\ \hline
+original & 3 & uncomputable & \\ \hline
+originalfinal & 3 & uncomputable & 3, 4 \\ \hline
+step1 & 3 & uncomputable & 1 \\ \hline
+step2 & 3 & uncomputable & 1, 2 \\ \hline
+step3 & 3 & uncomputable & 1, 2, 3 \\ \hline
+step3scalar & 3 & uncomputable & 1, 2, 3, 7 \\ \hline
+step3minimized & 3 & 105 seconds & 1, 2, 3, 4, 5 \\ \hline
+step3scalarminimized & 3 & 35 seconds & 1, 2, 3, 4, 5, 7 \\ \hline
+step4 & 3 & 220 seconds & 1, 2, 3, 5, 6\\ \hline
+step4scalar & 3 & 40 seconds & 1, 2, 3, 5, 6, 7 \\ \hline
+step4scalar & 4 & uncomputable & 1, 2, 3, 5, 6, 7 \\ \hline
+\end{tabular}
 
 %Vergelijking tussen verschillende versies van ons, en uiteindelijke versie van aceto2004notes
 
 \section{Conclusion}
 	
-%We kunnen succesvol 3 processen door laten rekenen, sneller dan toen (40 sec vs. <TODO>)
+%We kunnen succesvol 3 processen door laten rekenen, sneller dan toen (40 sec vs. NIET)
 %Als 4 haalbaar blijkt te zijn, dan dat.
 %5 nodig voor Faulty Process-eigenschap.
+
+From the above results above, we can conclude that the 'time jump'-improvement and replacement of \texttt{ARR} results in a practically computable model for the Welch-Lynch clock synchronisation protocol for three processes. Regretfully we are still not able to verify the algorithm for more than three processes; let alone a faulty process.
+
+Still, compared to the experiments of Aceto et al., our improvements on the model, more computational power, and the improvements on UPPAAL have made the verification of this protocol practical.
 
 \bibliographystyle{plain}
 \bibliography{main}
