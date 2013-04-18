@@ -196,24 +196,6 @@ t = 0</label>
 		</transition>
 	</template>
 	<template>
-		<name>Observer</name>
-		<parameter>const time_t t</parameter>
-		<declaration>clock c;</declaration>
-		<location id="id2" x="0" y="-96">
-			<name x="16" y="-120">finished</name>
-		</location>
-		<location id="id3" x="0" y="0">
-			<name x="24" y="-16">processing</name>
-			<label kind="invariant" x="24" y="0">c &lt;= t</label>
-		</location>
-		<init ref="id3"/>
-		<transition>
-			<source ref="id3"/>
-			<target ref="id2"/>
-			<label kind="guard" x="16" y="-56">c == t</label>
-		</transition>
-	</template>
-	<template>
 		<name>Channel</name>
 		<parameter>const id_t id</parameter>
 		<declaration>clock t;
@@ -223,32 +205,32 @@ void reset_b()
     for(i : id_t)
         b[id][i] = true;
 }</declaration>
-		<location id="id4" x="264" y="-16">
+		<location id="id2" x="264" y="-16">
 			<name x="288" y="-32">sending</name>
 			<label kind="invariant" x="288" y="-16">t &lt;= xi * (delta+epsilon)</label>
 		</location>
-		<location id="id5" x="264" y="96">
+		<location id="id3" x="264" y="96">
 			<name x="280" y="80">idle</name>
 		</location>
-		<init ref="id5"/>
+		<init ref="id3"/>
 		<transition>
-			<source ref="id5"/>
-			<target ref="id4"/>
+			<source ref="id3"/>
+			<target ref="id2"/>
 			<label kind="synchronisation" x="296" y="16">send[id]?</label>
 			<label kind="assignment" x="296" y="32">t = 0,
 reset_b()</label>
 			<nail x="288" y="40"/>
 		</transition>
 		<transition>
-			<source ref="id4"/>
-			<target ref="id5"/>
+			<source ref="id2"/>
+			<target ref="id3"/>
 			<label kind="guard" x="-16" y="24">(t &lt;= xi * (delta+epsilon)) &amp;&amp;
 forall(l : id_t) l != id imply !b[id][l]</label>
 			<nail x="232" y="40"/>
 		</transition>
 		<transition>
-			<source ref="id4"/>
-			<target ref="id4"/>
+			<source ref="id2"/>
+			<target ref="id2"/>
 			<label kind="select" x="232" y="-184">l : id_t</label>
 			<label kind="guard" x="232" y="-168">l != id &amp;&amp; b[id][l] &amp;&amp; t &gt;= xi * (delta-epsilon)</label>
 			<label kind="synchronisation" x="232" y="-153">receive[l][id]!</label>
