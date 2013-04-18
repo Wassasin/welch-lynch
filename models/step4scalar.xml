@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_1.dtd'>
 <nta>
-	<declaration>const int process_count = 4;
+	<declaration>const int process_count = 3;
 
 typedef scalar[process_count] id_t;
 typedef int time_t;
@@ -112,19 +112,7 @@ void record_min_max()
 {
     MIN = min(MIN, local_time[id]);
     MAX = max(MAX, local_time[id]);
-}
-
-/*cycle_t calculate_local()
-{
-        cycle_t minval = cycle, maxval = 0;
-        for(i : id_t)
-                if(i != id)
-                {
-                        minval = min(minval, ARRbounded[i]);
-                        maxval = max(maxval, ARRbounded[i]);
-                }
-        return local_time[id] + delta - (minval + maxval) / 2 - P; //Must be 0, increment diff
-}*/</declaration>
+}</declaration>
 		<location id="id0" x="240" y="64">
 			<label kind="invariant" x="304" y="-16">t &lt;= xi &amp;&amp;
 (!FLAG imply local_time[id] &lt;= 0) &amp;&amp;
