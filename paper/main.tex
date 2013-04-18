@@ -183,12 +183,19 @@ We compare our models to the guidelines stated at the end of ''A First Introduct
 
 \begin{enumerate}
 \item \textbf{Object of modelling} \\
+	In our most complex model, \texttt{step4scalar}, we have three distinct automata: a Process, which models a physical process in a network; a Channel, which models the physical characteristics of a broadcast channel in a network; and finally, the Helper, which models the virtual act of jumping through time.
 \item \textbf{Purpose} \\
+	We have built upon models which are descriptive, and serve to eventually verify the Welch-Lynch clock synchronization protocol. Specifically, we wish to verify the faulty-tolerance property of the protocol.
 \item \textbf{Traceable} \\
+	As explained before; the Process and Channel correspond to the physical aspects of the protocol; whereas the Helper corresponds to the virtual act of jumping through time, and thus encodes the explicit assumption that jumping through time in this manner does not change the behaviour of the protocol. For links to the definition of the protocol we refer to the notes by Alceto et al. \cite{Aceto2004Notes}
 \item \textbf{Truthful} \\
+	Our model is not truthful in the sense that it explicitly encompasses behaviour not possible in the real object of modelling: jumping through time. However, we have made this an explicit assumption, and thus should be considered acceptable. Our model is completely based on the notes of Aceto et al., and is thus at most as truthful as their model.
 \item \textbf{Simple} \\
+	We have simplified the original model considerably by using new \UPPAAL features such as \texttt{select}-statements, advanced guards and C-functions. Because of this a lot of administrative work done in the automata is now done by \UPPAAL or C-functions. This makes the models more readable, and conveniently reduces the state space in some cases.
 \item \textbf{Extensible and reusable} \\
+	In our last version of our model, \texttt{step4scalar}, we can arbitrarily increase the total number of processes in the model by increasing a single constant value. Also, the timing constraints can be adjusted by editing the appriopriate constants. Lastly, because our model is simpel, new components can be added easily. (For an example, see the Helper-automata)
 \item \textbf{Interoperability and sharing} \\
+	As we optimized our models pretty thoroughly, and has thus become a high abstraction of the original protocol, we doubt the model can be used for anything else other than verification. As such, our models are not very shareable.
 \end{enumerate}
 
 \section{Performance\label{sec:performance}}
