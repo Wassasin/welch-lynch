@@ -79,7 +79,7 @@ It was soon getting clear that all other optimizations had to be applied as well
 
 \begin{enumerate}
 \item \textbf{C-like functions} \\
-	The \UPPAAL C-like declaration language has been enriched extensively over the years. For instance, in 2004, one was not able to use functions and complicated constructions had to be thought off to simulate the behaviour. In figure~\ref{fig:original_process}, the right part uses a committed state to iterate over an array to determine its minimal and maximal values. A similar structure is seen in the channel automaton. Luckily the new syntax allows us to replace these structures by C-like functions. Due to the nature of a committed state, this does not directly highly decrease the state space, but it allows for the removal of some variables, transitions and complex update statements. This makes the model more comprehensible. The removal of the variables \texttt{min} and \texttt{max} then does result in a decreased state space. The result can be seen in figure~\ref{fig:step1_process}.
+	The \UPPAAL C-like declaration language has been enriched extensively over the years. For instance, in 2004, one was not able to use functions and complicated constructions had to be thought off to simulate the behavior. In figure~\ref{fig:original_process}, the right part uses a committed state to iterate over an array to determine its minimal and maximal values. A similar structure is seen in the channel automaton. Luckily the new syntax allows us to replace these structures by C-like functions. Due to the nature of a committed state, this does not directly highly decrease the state space, but it allows for the removal of some variables, transitions and complex update statements. This makes the model more comprehensible. The removal of the variables \texttt{min} and \texttt{max} then does result in a decreased state space. The result can be seen in figure~\ref{fig:step1_process}.
 
 \begin{figure}[!h]
 \includegraphics[width=\textwidth]{step1_process}
@@ -96,7 +96,7 @@ It was soon getting clear that all other optimizations had to be applied as well
 	In 2004, it was presumably noticed that it turned out to be hard to verify instances of the protocol using \UPPAAL. Therefore, the researchers tried to restrict themselves to three processes. This allows for a more direct computation of the minimum and maximum values in the right part of the process automaton. The variables \texttt{ARR1}, \texttt{min1} and \texttt{max1} are replaced by a single variable \texttt{SUM}. Removing variables implies reducing the search space.
 
 \item \textbf{Time jumps} \\
-	When traces were simulated within the model, it was noticed that for the larger part of the time, most variables were not changing values, except for the \texttt{local\_time} variable which was simply incrementing. When the counter reached 0, all process instances started to send out and receive messages. Before and after that, nothing changed within the system. This lead to the invention of a time jump optimization, where a process is allowed to simply skip the parts where nothing interesting is happening. Of course it has been made sure that the time jumps do not influence the total behaviour of the system in any way. This optimization has been shown to greatly reduce the state space. The resulting process automaton can be seen in figure~\ref{fig:step3minimized_process}.
+	When traces were simulated within the model, it was noticed that for the larger part of the time, most variables were not changing values, except for the \texttt{local\_time} variable which was simply incrementing. When the counter reached 0, all process instances started to send out and receive messages. Before and after that, nothing changed within the system. This lead to the invention of a time jump optimization, where a process is allowed to simply skip the parts where nothing interesting is happening. Of course it has been made sure that the time jumps do not influence the total behavior of the system in any way. This optimization has been shown to greatly reduce the state space. The resulting process automaton can be seen in figure~\ref{fig:step3minimized_process}.
 
 \begin{figure}[!h]
 \includegraphics[width=\textwidth]{step3minimized_process}
@@ -104,7 +104,7 @@ It was soon getting clear that all other optimizations had to be applied as well
 \end{figure}
 
 \item \textbf{Symmetry reduction} \\
-	Symmetry reduction \cite{Hendriks2004Adding} is a powerful technique to drastically reduce both computation time and memory usage. This reduction is exponential in the size of the scalar sets, a symmetric data type, that are used. The processes in the protocol are highly symmetrical. When their IDs are defined as a scalar set type, the \UPPAAL verifier can use so-called \textit{state swaps} to reduce the state space. For instance, there are different orders in which the \texttt{local\_time} counter can be incremented. Using symmetry reduction, the branching resulting from this ordening is reduced.
+	Symmetry reduction \cite{Hendriks2004Adding} is a powerful technique to drastically reduce both computation time and memory usage. This reduction is exponential in the size of the scalar sets, a symmetric data type, that are used. The processes in the protocol are highly symmetrical. When their IDs are defined as a scalar set type, the \UPPAAL verifier can use so-called \textit{state swaps} to reduce the state space. For instance, there are different orders in which the \texttt{local\_time} counter can be incremented. Using symmetry reduction, the branching resulting from this ordering is reduced.
 
 \item \textbf{Extended guards} \\
 	The channel automaton used to contain a variable \(C\) that counted how many messages had been received. When all messages had been received, another transition could be taken. This variable has been removed completely, due to a richer syntax which allows for guards with \texttt{forall} modifiers. Now it's easier to check if all messages have been received, i.e. if all boolean values in an array are set to true. In figure~\ref{fig:original_channel}, one can see the original channel, while figure~\ref{fig:step4scalar_channel} shows the optimized automaton.
@@ -143,7 +143,7 @@ If we would have been able to calculate a system with four processes, we would h
 
 \begin{enumerate}
 \item \textbf{Upgrading \texttt{MIN} and \texttt{MAX} to arrays} \\
-	We would have upgraded the \texttt{MIN} and \texttt{MAX} variables to arrays with a lenght of $f+1$. In the case of $f=1$, we would have stored the top and bottom two timings per process, and averaged the lowest \texttt{MAX} en highest \texttt{MIN} values. This would result in actually ignoring the outliers, thus encompassing the fault-tolerant property of this protocol.
+	We would have upgraded the \texttt{MIN} and \texttt{MAX} variables to arrays with a length of $f+1$. In the case of $f=1$, we would have stored the top and bottom two timings per process, and averaged the lowest \texttt{MAX} en highest \texttt{MIN} values. This would result in actually ignoring the outliers, thus encompassing the fault-tolerant property of this protocol.
 	
 	Because we were never able to verify the model with four processes, we could never even begin to verify the protocol in the case of a single process ($f=1$). Thus the arrays with length $1$ are sufficient.
 	
@@ -187,13 +187,13 @@ We compare our models to the guidelines stated at the end of ''A First Introduct
 \item \textbf{Purpose} \\
 	We have built upon models which are descriptive, and serve to eventually verify the Welch-Lynch clock synchronization protocol. Specifically, we wish to verify the faulty-tolerance property of the protocol.
 \item \textbf{Traceable} \\
-	As explained before; the Process and Channel correspond to the physical aspects of the protocol; whereas the Helper corresponds to the virtual act of jumping through time, and thus encodes the explicit assumption that jumping through time in this manner does not change the behaviour of the protocol. For links to the definition of the protocol we refer to the notes by Alceto et al. \cite{Aceto2004Notes}
+	As explained before; the Process and Channel correspond to the physical aspects of the protocol; whereas the Helper corresponds to the virtual act of jumping through time, and thus encodes the explicit assumption that jumping through time in this manner does not change the behavior of the protocol. For links to the definition of the protocol we refer to the notes by Aceto et al. \cite{Aceto2004Notes}
 \item \textbf{Truthful} \\
-	Our model is not truthful in the sense that it explicitly encompasses behaviour not possible in the real object of modelling: jumping through time. However, we have made this an explicit assumption, and thus should be considered acceptable. Our model is completely based on the notes of Aceto et al., and is thus at most as truthful as their model.
+	Our model is not truthful in the sense that it explicitly encompasses behavior not possible in the real object of modelling: jumping through time. However, we have made this an explicit assumption, and thus should be considered acceptable. Our model is completely based on the notes of Aceto et al., and is thus at most as truthful as their model.
 \item \textbf{Simple} \\
 	We have simplified the original model considerably by using new \UPPAAL features such as \texttt{select}-statements, advanced guards and C-functions. Because of this a lot of administrative work done in the automata is now done by \UPPAAL or C-functions. This makes the models more readable, and conveniently reduces the state space in some cases.
 \item \textbf{Extensible and reusable} \\
-	In our last version of our model, \texttt{step4scalar}, we can arbitrarily increase the total number of processes in the model by increasing a single constant value. Also, the timing constraints can be adjusted by editing the appriopriate constants. Lastly, because our model is simpel, new components can be added easily. (For an example, see the Helper-automata)
+	In our last version of our model, \texttt{step4scalar}, we can arbitrarily increase the total number of processes in the model by increasing a single constant value. Also, the timing constraints can be adjusted by editing the appropriate constants. Lastly, because our model is simple, new components can be added easily. (For an example, see the Helper-automata)
 \item \textbf{Interoperability and sharing} \\
 	As we optimized our models pretty thoroughly, and has thus become a high abstraction of the original protocol, we doubt the model can be used for anything else other than verification. As such, our models are not very shareable.
 \end{enumerate}
@@ -248,7 +248,7 @@ step4scalar & 4 & uncomputable & 1, 2, 3, 5, 6, 7 \\ \hline
 %Als 4 haalbaar blijkt te zijn, dan dat.
 %5 nodig voor Faulty Process-eigenschap.
 
-From the above results above, we can conclude that the 'time jump'-improvement and replacement of \texttt{ARR} results in a practically computable model for the Welch-Lynch clock synchronisation protocol for three processes. Regretfully we are still not able to verify the algorithm for more than three processes; let alone a faulty process.
+From the above results above, we can conclude that the 'time jump'-improvement and replacement of \texttt{ARR} results in a practically computable model for the Welch-Lynch clock synchronization protocol for three processes. Regretfully we are still not able to verify the algorithm for more than three processes; let alone a faulty process.
 
 Still, compared to the experiments of Aceto et al., our improvements on the model, more computational power, and the improvements on UPPAAL have made the verification of this protocol practical.
 
